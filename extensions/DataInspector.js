@@ -121,7 +121,6 @@ Inspector.prototype.inspectObject = function(object) {
     if (this.inspectsSelection) {
       if (this.multipleSelection) { // gets the selection if multiple selection is true
         inspectedObjects = this._diagram.selection;
-        this._inspectedObject = inspectedObjects.first();
       } else { // otherwise grab the first object
         inspectedObject = this._diagram.selection.first();
       }

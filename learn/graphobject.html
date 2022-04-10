@@ -76,23 +76,26 @@
 </p>
 
 <pre class="lang-js"><code>
-const myDiagram =
-  new go.Diagram("myDiagramDiv",
+var $ = go.GraphObject.make;
+
+var myDiagram =
+  $(go.Diagram, "myDiagramDiv",
     { "undoManager.isEnabled": true });
 
 // define a simple Node template
 myDiagram.nodeTemplate =
-  new go.Node("Auto")
-    .add(new go.Shape("Rectangle",
-        // don't draw any outline
-        { stroke: null })
-        // the Shape.fill comes from the Node.data.color property
-        .bind("fill", "color"))
-    .add(new go.TextBlock(
-        // leave some space around larger-than-normal text
-        { margin: 6, font: "18px sans-serif" })
-        // the TextBlock.text comes from the Node.data.key property
-        .bind("text"))
+  $(go.Node, "Auto",
+    $(go.Shape, "Rectangle",
+      // don't draw any outline
+      { stroke: null },
+      // the Shape.fill comes from the Node.data.color property
+      new go.Binding("fill", "color")),
+    $(go.TextBlock,
+      // leave some space around larger-than-normal text
+      { margin: 6, font: "18px sans-serif" },
+      // the TextBlock.text comes from the Node.data.key property
+      new go.Binding("text"))
+  );
 
 myDiagram.model = new go.GraphLinksModel(
   [
@@ -109,23 +112,21 @@ myDiagram.model = new go.GraphLinksModel(
 <div id="myDiagramDiv1" class="diagramStyling" style="width: 700px; height: 150px"></div>
 <script>
   function setupDiagram(divname) {
-    const myDiagram =
-      new go.Diagram(divname,
+    var $ = go.GraphObject.make;
+
+    var myDiagram =
+      $(go.Diagram, divname,
         { "undoManager.isEnabled": true });
 
-    // define a simple Node template
     myDiagram.nodeTemplate =
-      new go.Node("Auto")
-        .add(new go.Shape("Rectangle",
-            // don't draw any outline
-            { stroke: null, name: "SHAPE" })
-            // the Shape.fill comes from the Node.data.color property
-            .bind("fill", "color"))
-        .add(new go.TextBlock(
-            // leave some space around larger-than-normal text
-            { margin: 6, font: "18px sans-serif" })
-            // the TextBlock.text comes from the Node.data.key property
-            .bind("text"))
+      $(go.Node, "Auto",
+        $(go.Shape, "Rectangle",
+          { stroke: null, name: 'SHAPE' },
+          new go.Binding("fill", "color")),
+        $(go.TextBlock,
+          { margin: 6, font: "18px sans-serif" },
+          new go.Binding("text"))
+      );
 
     myDiagram.model = new go.GraphLinksModel(
       [
@@ -152,14 +153,14 @@ myDiagram.model = new go.GraphLinksModel(
 </p>
 
 <pre class="lang-js"><code>
-const node = myDiagram.findNodeForKey(1);
+var node = myDiagram.findNodeForKey(1);
 
 // Selects the node programmatically, rather than clicking interactively:
 myDiagram.select(node);
 
 // Outputs a JavaScript object in the developer console window.
 // The format of what is output will differ per browser, but is essentially the object:
-// { key: 1, text: "Alpha", color: "lightblue" }
+// { key: "Alpha", color: "lightblue" }
 // plus some internal implementation details.
 console.log(node.data);
 </code></pre>
@@ -167,10 +168,10 @@ console.log(node.data);
 <!-- LIVE -->
 <div id="myDiagramDiv2" class="diagramStyling" style="width: 700px; height: 150px"></div>
 <script>
-  const myDiagram2 = setupDiagram("myDiagramDiv2");
-  const node2 = myDiagram2.findNodeForKey(1);
-  myDiagram2.select(node2);
-  if (window.console) console.log(node2.data);
+  var myDiagram = setupDiagram("myDiagramDiv2");
+  var node = myDiagram.findNodeForKey(1);
+  myDiagram.select(node);
+  if (window.console) console.log(node.data);
 </script>
 
 <p>
@@ -214,11 +215,11 @@ console.log(node.data);
 <pre class="lang-js"><code>
 // Calling Diagram.commit executes the given function between startTransaction and commitTransaction
 // calls.  That automatically updates the display and allows the effects to be undone.
-myDiagram.commit(d => {  // d === myDiagram
+myDiagram.commit(function(d) {  // d === myDiagram
 
   // iterate over all nodes in Diagram
-  d.nodes.each(node => {
-    if (node.data.text === "Beta") return; // skip Beta, just for contrast
+  d.nodes.each(function(node) {
+    if (node.data.text === "Beta") continue; //skip Beta, just to contrast
     node.scale = 0.4; // shrink each node
   });
 
@@ -230,11 +231,11 @@ myDiagram.commit(d => {  // d === myDiagram
 <!-- LIVE -->
 <div id="myDiagramDiv3" class="diagramStyling" style="width: 700px; height: 150px"></div>
 <script>
-  const myDiagram3 = setupDiagram("myDiagramDiv3");
-  myDiagram3.commit(d => {  // d === myDiagram
+  var myDiagram = setupDiagram("myDiagramDiv3");
+  myDiagram.commit(function (d) {  // d === myDiagram
 
     // iterate over all nodes in Diagram
-    d.nodes.each(node => {
+    d.nodes.each(function (node) {
       if (node.data.text === "Beta") return; //skip Beta, just to contrast
       node.scale = 0.4; // shrink each node
     });
@@ -256,13 +257,14 @@ myDiagram.commit(d => {  // d === myDiagram
 
 <pre class="lang-js"><code>
 myDiagram.nodeTemplate =
-  new go.Node("Auto")
-    .add(new go.Shape("Rectangle",
-        { stroke: null, name: "SHAPE" }), // added the name property
-        .bind("fill", "color"))
-    .add(new go.TextBlock(
-        { margin: 6, font: "18px sans-serif" }),
-        .bind("text"));
+  $(go.Node, "Auto",
+    $(go.Shape, "Rectangle",
+      { stroke: null, name: "SHAPE" }, // added the name property
+      new go.Binding("fill", "color")),
+    $(go.TextBlock,
+      { margin: 6, font: "18px sans-serif" },
+      new go.Binding("text"))
+  );
 </code></pre>
 
 <p>
@@ -281,11 +283,11 @@ myDiagram.nodeTemplate =
 </p>
 
 <pre class="lang-js"><code>
-const selectionButton = document.getElementById("selectionButton");
-selectionButton.addEventListener("click", () => {
-  myDiagram.commit(d => {
-    d.selection.each(node => {
-      const shape = node.findObject("SHAPE");
+var selectionButton = document.getElementById("selectionButton");
+selectionButton.addEventListener("click", function() {
+  myDiagram.commit(function(d) {
+    d.selection.each(function(node) {
+      var shape = node.findObject("SHAPE");
       // If there was a GraphObject in the node named SHAPE, then set its fill to red:
       if (shape !== null) {
         shape.fill = "red";
@@ -301,22 +303,19 @@ selectionButton.addEventListener("click", () => {
   Select some Nodes, then click here to change their Shape.fill
 </button>
 <script>
-  const myDiagram4 = setupDiagram("myDiagramDiv4");
-  const selectionButton = document.getElementById("selectionButton");
-  selectionButton.addEventListener("click", () => {
-
-    myDiagram4.commit(d => {
-      d.selection.each(node => {
-        if (!(node instanceof go.Node)) return;
-        const shape = node.findObject("SHAPE");
+  var myDiagram4 = setupDiagram("myDiagramDiv4");
+  var selectionButton = document.getElementById("selectionButton");
+  selectionButton.addEventListener("click", function () {
+    myDiagram4.commit(function (d) {
+      d.selection.each(function (node) {
+        var shape = node.findObject("SHAPE");
         // If there was a GraphObject in the node named SHAPE, then set its fill to red:
         if (shape !== null) {
           shape.fill = "red";
         }
       });
     }, "change color");
-
-});
+  });
 </script>
 
 <h2 id="ChangingProperteisAndUpdatingModelUsingDataBindings">
@@ -330,13 +329,14 @@ selectionButton.addEventListener("click", () => {
 
 <pre class="lang-js"><code>
 myDiagram.nodeTemplate =
-  new go.Node("Auto")
-    .add(new go.Shape("Rectangle",
-        { stroke: null, name: "SHAPE" }),
-        .bind("fill", "color"))  // note this data binding
-    .add(new go.TextBlock(
-        { margin: 6, font: "18px sans-serif" }),
-        .bind("text"));
+  $(go.Node, "Auto",
+    $(go.Shape, "Rectangle",
+      { stroke: null, name: "SHAPE" },
+      new go.Binding("fill", "color")),  // note this data binding
+    $(go.TextBlock,
+      { margin: 6, font: "18px sans-serif" },
+      new go.Binding("text"))
+  );
 </code></pre>
 
 <p>
@@ -345,8 +345,8 @@ myDiagram.nodeTemplate =
 </p>
 
 <pre class="lang-js"><code>
-const node = myDiagram.findNodeForKey(1);
-const shape = node.findObject("SHAPE");
+var node = myDiagram.findNodeForKey(1);
+var shape = node.findObject("SHAPE");
 shape.fill = "red";
 
 // outputs "lightblue" - the model has not changed!
@@ -373,7 +373,7 @@ console.log(node.data.color);
 </p>
 
 <pre class="lang-js" style="border: 6px solid red"><code>
-const node = myDiagram.findNodeForKey(1);
+var node = myDiagram.findNodeForKey(1);
 
 // DO NOT DO THIS!
 // This would update the data, but GoJS would not be notified
@@ -391,10 +391,10 @@ node.data.color = "red";
 </p>
 
 <pre class="lang-js" style="border: 6px solid lime"><code>
-const node = myDiagram.findNodeForKey(1);
+var node = myDiagram.findNodeForKey(1);
 
 // Model.commit executes the given function within a transaction
-myDiagram.model.commit(m => {  // m == the Model
+myDiagram.model.commit(function(m) {  // m == the Model
 
   // This is the safe way to change model data.
   // GoJS will be notified that the data has changed
@@ -409,19 +409,18 @@ console.log(node.data.color);
 // and the user will see the red node
 </code></pre>
 
-<!-- LIVE -->
 <div id="myDiagramDiv5" class="diagramStyling" style="width: 700px; height: 150px"></div>
 <script>
-  const myDiagram5 = setupDiagram("myDiagramDiv5");
-  const node5 = myDiagram5.findNodeForKey(1);
+  var myDiagram = setupDiagram("myDiagramDiv5");
+  var node = myDiagram.findNodeForKey(1);
   // Model.commit executes the given function within a transaction
-  myDiagram5.model.commit(m => {
+  myDiagram.model.commit(function (m) {
     // m == the Model
     // This is the safe way to change model data.
     // GoJS will be notified that the data has changed
     // so that it can update the node in the Diagram
     // and record the change in the UndoManager.
-    m.set(node5.data, "color", "red");
+    m.set(node.data, "color", "red");
   }, "changed color");
 </script>
 
@@ -434,13 +433,14 @@ console.log(node.data.color);
 
 <pre class="lang-js"><code>
 myDiagram.nodeTemplate =
-  new go.Node("Auto")
-    .add(new go.Shape("Rectangle",
-        { stroke: null })  // removed the name property
-        .bind("fill", "color"))
-    .add(new go.TextBlock(
-        { margin: 6, font: "18px sans-serif" })
-        .bind("text"));
+  $(go.Node, "Auto",
+    $(go.Shape, "Rectangle",
+      { stroke: null },  // removed the name property
+      new go.Binding("fill", "color")),
+    $(go.TextBlock,
+      { margin: 6, font: "18px sans-serif" },
+      new go.Binding("text"))
+  );
 </code></pre>
 
 <h2 id="SubjectMentionedAndFurtherReading">
